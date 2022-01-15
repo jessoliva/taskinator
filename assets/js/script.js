@@ -55,9 +55,6 @@ formEl.addEventListener("submit", taskFormHandler);
 
 
 
-
-
-
 // //OLD CODE
 // var formEl = document.querySelector("#task-form");
 // var tasksToDoEl = document.querySelector("#tasks-to-do");
