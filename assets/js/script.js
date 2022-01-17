@@ -1,6 +1,7 @@
 var formEl = document.querySelector("#task-form");
 var tasksToDoEl = document.querySelector("#tasks-to-do");
 var taskIdCounter = 0;
+var pageContentEl = document.querySelector("#page-content");
 
 var taskFormHandler = function(event) {
     //event here refers to the submit event
@@ -9,6 +10,7 @@ var taskFormHandler = function(event) {
 
     //user data input received
     var taskNameInput = document.querySelector("input[name='task-name']").value;
+    //selected <input> element with name='task-name' attribute
     var taskTypeInput = document.querySelector("select[name='task-type']").value;
 
     if(!taskNameInput || !taskTypeInput) {
@@ -99,6 +101,29 @@ var createTaskActions = function(taskId) {
 };
 
 formEl.addEventListener("submit", taskFormHandler);
+
+//referencing the delete button with this function
+var taskButtonHandler = function(event) {
+    //event.target references the DOM element on which the event occurs!!
+    //the event that is occurring is the click down below
+    //.matches checking if element with that class will be returned by querySelector 
+    //referencing element that has this class="delete-btn"
+    if (event.target.matches(".delete-btn")) {
+        // get the element's task id
+        var taskId = event.target.getAttribute("data-task-id");
+        deleteTask(taskId);
+        //using the taskId for the button as an argument
+    }
+};
+
+var deleteTask = function(taskId) {
+    var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+    //selecting .task-item[data-task-id='taskId'] the class with that data-task-id
+    taskSelected.remove();
+    //removes the task
+};
+
+pageContentEl.addEventListener("click", taskButtonHandler);
 
 
 
