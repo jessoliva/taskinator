@@ -30,7 +30,10 @@ var taskFormHandler = function(event) {
         return false;
     }
 
-    formEl.reset();
+    // reset form fields for next task to be entered
+    document.querySelector("input[name='task-name']").value = "";
+    document.querySelector("select[name='task-type']").selectedIndex = 0;
+    // formEl.reset();
 
     var isEdit = formEl.hasAttribute("data-task-id");
 
@@ -74,21 +77,38 @@ var createTaskEl = function(taskDataObj) { //accepting object as argument
     //Note that we're using taskIdCounter as the argument now to create buttons that correspond to the current task id
     listItemEl.appendChild(taskActionsEl);
 
-    //add entire list item child <li> to list parent <ul>
-    tasksToDoEl.appendChild(listItemEl);
+    //add entire list item child <li> to appropriate list parent <ul>
+    switch (taskDataObj.status) {
+        case "to do":
+          taskActionsEl.querySelector("select[name='status-change']").selectedIndex = 0;
+          tasksToDoEl.append(listItemEl);
+          break;
+        case "in progress":
+          taskActionsEl.querySelector("select[name='status-change']").selectedIndex = 1;
+          tasksInProgressEl.append(listItemEl);
+          break;
+        case "completed":
+          taskActionsEl.querySelector("select[name='status-change']").selectedIndex = 2;
+          tasksCompletedEl.append(listItemEl);
+          break;
+        default:
+          console.log("Something went wrong!");
+    }
 
+    // save task as an object with name, type, status, and id properties then push it into tasks array
+    //
     //set the id to the initial value of taskIdCounter = 0
     //add this property to the taskDataObj object as a property of id
     taskDataObj.id = taskIdCounter;
-
+    //
     //push the taskDataObj object (each task is a diff object) to the tasks array
     tasks.push(taskDataObj);
 
+    // save tasks to localStorage
+    saveTasks();
+
     // increase task counter for next unique id
     taskIdCounter++;
-
-    //run function to save to local storage
-    saveTasks();
 };
 
 var createTaskActions = function(taskId) {
@@ -279,64 +299,24 @@ var saveTasks = function() {
 var loadTasks = function () {
 
     // Gets task items from localStorage
-    tasks = localStorage.getItem("tasks");
+    var savedTasks = localStorage.getItem("tasks");
     // console.log(tasks);
 
-    //if there is nothing saved to localStorage under tasks, make tasks an empty array again
-    //don't want function to keep running w no tasks to load onto the page
-    if (!tasks) {
-        tasks = [];
-        return false; 
+    // if there are no tasks, set tasks to an empty array and return out of the function
+    if (!savedTasks) {
+        return false;
     }
+    console.log("Saved tasks found!");
+    // else, load up saved tasks
 
+    // parse into array of objects
     // Converts tasks from the string format back into an array of objects
-    // Get the tasks into an object array
-    tasks = JSON.parse(tasks);
-    // console.log(tasks);
-    
-    // Iterates through a tasks array and creates task elements on the page from it
+    savedTasks = JSON.parse(savedTasks);
 
-    for (i = 0; i < tasks.length; i++) {
-        console.log(tasks[i]);
-
-        tasks[i].id = taskIdCounter;
-
-        //create <li> element - parent
-        var listItemEl = document.createElement("li");
-        listItemEl.className = "task-item";
-        listItemEl.setAttribute("data-task-id", tasks[i].id);
-
-        //create <div> element and append to <li>
-        //<div> has <h3> and <span> children
-        var taskInfoEl = document.createElement("div");
-        taskInfoEl.className = "task-info";
-        taskInfoEl.innerHTML = "<h3 class='task-name'>" + tasks[i].name + "</h3><span class='task-type'>" + tasks[i].type + "</span>";
-        listItemEl.appendChild(taskInfoEl);
-
-
-        //create <div> element for buttons and drop-down, and append to <li>
-        //run createTaskActions function with tasks[i].id as argument
-        var actionContainerEl = createTaskActions(tasks[i].id);
-        listItemEl.appendChild(actionContainerEl);
-
-        //append <li> to correct <ul> element
-        if (tasks[i].status == "to do") {
-            listItemEl.querySelector("select[name='status-change']").selectedIndex = 0;
-            tasksToDoEl.appendChild(listItemEl);
-        }
-        else if (tasks[i].status == "in progress") {
-            listItemEl.querySelector("select[name='status-change']").selectedIndex = 1;
-            tasksInProgressEl.appendChild(listItemEl);
-        }
-        else if (tasks[i].status == "completed") {
-            listItemEl.querySelector("select[name='status-change']").selectedIndex = 2;
-            tasksCompletedEl.appendChild(listItemEl);
-        }
-
-        //inc index by 1
-        taskIdCounter++;
-
-        console.log(listItemEl);
+    // loop through savedTasks array
+    for (var i = 0; i < savedTasks.length; i++) {
+        // pass each task object into the `createTaskEl()` function
+        createTaskEl(savedTasks[i]); //sending array object as an argument
     }
 };
 loadTasks();
@@ -349,69 +329,3 @@ pageContentEl.addEventListener("click", taskButtonHandler);
 
 // for changing the status
 pageContentEl.addEventListener("change", taskStatusChangeHandler);
-
-
-
-// // OLD CODE FOR createTaskEl(taskDataObj)
-//     //package up data as an object
-//     var taskDataObj = {
-//         name: taskNameInput, //name and type are properties of the object
-//         type: taskTypeInput,
-//     }; //values sent with argument to be read in function below
-
-// //OLD CODE FOR TASKBUTTONHANDLER 
-//referencing the delete and edit buttons with this function
-// var taskButtonHandler = function(event) {
-//     //event.target references the DOM element on which the event occurs!!
-//     //the event that is occurring is the click down below
-//     //.matches checking if element with that class will be returned by querySelector 
-//     //referencing element that has this class="delete-btn"
-//     if (event.target.matches(".delete-btn")) {
-//         // get the element's task id
-//         var taskId = event.target.getAttribute("data-task-id");
-//         deleteTask(taskId);
-//         //using the taskId for the button as an argument
-//     }
-// };
-
-
-
-// //OLD CODE
-// var formEl = document.querySelector("#task-form");
-// var tasksToDoEl = document.querySelector("#tasks-to-do");
-
-// var createTaskHandler = function(event) {
-//     //event here refers to the submit event
-
-//     event.preventDefault();
-
-//     var taskNameInput = document.querySelector("input[name='task-name']").value;
-//     //value is the user input value that replaces "Enter Task Name" in the input element
-//     var taskTypeInput = document.querySelector("select[name='task-type']").value;
-//     //option from dropdown menu value
-  
-//     // create list item -- child of ul
-//     var listItemEl = document.createElement("li");
-//     listItemEl.className = "task-item";
-//     //creates <li class="task-item"></li>
-
-//     // create div to hold task info and add to list item -- child of li
-//     var taskInfoEl = document.createElement("div");
-//     // give it a class name
-//     taskInfoEl.className = "task-info";
-
-//     // add HTML content to div
-//     taskInfoEl.innerHTML = "<h3 class='task-name'>" + taskNameInput + "</h3><span class='task-type'>" + taskTypeInput + "</span>";
-//     listItemEl.appendChild(taskInfoEl);
-//     //adds div child to li parent
-//     //creates <div><h3 class="task-name">taskNameInput value</h3><span class="task-type">taskTypeInput value</span></div>
-//     //the div holds the content to the li
-
-//     // add entire list item to list
-//     tasksToDoEl.appendChild(listItemEl);
-//     //adds li child to ul parent
-// }; 
-// //must be placed before addEventListener because it needs to be declared first since it's a function expression w a variable
-
-// formEl.addEventListener("submit", createTaskHandler);
-// //when you click the button or press enter, it runs createTaskHandler
