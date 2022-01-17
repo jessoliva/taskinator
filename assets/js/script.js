@@ -1,7 +1,16 @@
+//references the actual form
 var formEl = document.querySelector("#task-form");
-var tasksToDoEl = document.querySelector("#tasks-to-do");
-var taskIdCounter = 0;
+
+//references the container with all the <ul> parent elements
 var pageContentEl = document.querySelector("#page-content");
+
+//references to <ul> parent elements
+var tasksToDoEl = document.querySelector("#tasks-to-do");
+var tasksInProgressEl = document.querySelector("#tasks-in-progress");
+var tasksCompletedEl = document.querySelector("#tasks-completed");
+
+//used to track <li> elements created
+var taskIdCounter = 0;
 
 var taskFormHandler = function(event) {
     //event here refers to the submit event
@@ -145,8 +154,6 @@ var deleteTask = function(taskId) {
 };
 
 var editTask = function(taskId) {
-    console.log("editing task #" + taskId);
-  
     // get task list item element parent!
     var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
 
@@ -165,7 +172,7 @@ var editTask = function(taskId) {
 };
 
 var completeEditTask = function(taskName, taskType, taskId) {
-    // find the matching task list item
+    // find the parent <li> task item element based on the id
     var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
 
     // set new values
@@ -182,6 +189,29 @@ var completeEditTask = function(taskName, taskType, taskId) {
   
 pageContentEl.addEventListener("click", taskButtonHandler);
 
+var taskStatusChangeHandler = function(event) {
+    // get the task item's id
+    var taskId = event.target.getAttribute("data-task-id");
+  
+    // get the currently selected option's value and convert to lowercase
+    var statusValue = event.target.value.toLowerCase();
+  
+    // find the parent <li> task item element based on the id
+    //doesn't create a second <li>!! selected a specific <li>
+    var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+
+    if (statusValue === "to do") {
+        tasksToDoEl.appendChild(taskSelected);
+    } 
+    else if (statusValue === "in progress") {
+        tasksInProgressEl.appendChild(taskSelected);
+    } 
+    else if (statusValue === "completed") {
+        tasksCompletedEl.appendChild(taskSelected);
+    }
+};
+
+pageContentEl.addEventListener("change", taskStatusChangeHandler);
 
 // // OLD CODE FOR createTaskEl(taskDataObj)
 //     //package up data as an object
