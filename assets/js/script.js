@@ -69,6 +69,7 @@ var createTaskEl = function(taskDataObj) { //accepting object as argument
     //adds div child to li parent
     listItemEl.appendChild(taskInfoEl);
 
+    // create task actions (buttons and select) for task
     var taskActionsEl = createTaskActions(taskIdCounter);
     //Note that we're using taskIdCounter as the argument now to create buttons that correspond to the current task id
     listItemEl.appendChild(taskActionsEl);
@@ -274,6 +275,71 @@ var saveTasks = function() {
     //can only save strings to local storage so stringify the array
     localStorage.setItem("tasks", JSON.stringify(tasks));
 };
+
+var loadTasks = function () {
+
+    // Gets task items from localStorage
+    tasks = localStorage.getItem("tasks");
+    // console.log(tasks);
+
+    //if there is nothing saved to localStorage under tasks, make tasks an empty array again
+    //don't want function to keep running w no tasks to load onto the page
+    if (!tasks) {
+        tasks = [];
+        return false; 
+    }
+
+    // Converts tasks from the string format back into an array of objects
+    // Get the tasks into an object array
+    tasks = JSON.parse(tasks);
+    // console.log(tasks);
+    
+    // Iterates through a tasks array and creates task elements on the page from it
+
+    for (i = 0; i < tasks.length; i++) {
+        console.log(tasks[i]);
+
+        tasks[i].id = taskIdCounter;
+
+        //create <li> element - parent
+        var listItemEl = document.createElement("li");
+        listItemEl.className = "task-item";
+        listItemEl.setAttribute("data-task-id", tasks[i].id);
+
+        //create <div> element and append to <li>
+        //<div> has <h3> and <span> children
+        var taskInfoEl = document.createElement("div");
+        taskInfoEl.className = "task-info";
+        taskInfoEl.innerHTML = "<h3 class='task-name'>" + tasks[i].name + "</h3><span class='task-type'>" + tasks[i].type + "</span>";
+        listItemEl.appendChild(taskInfoEl);
+
+
+        //create <div> element for buttons and drop-down, and append to <li>
+        //run createTaskActions function with tasks[i].id as argument
+        var actionContainerEl = createTaskActions(tasks[i].id);
+        listItemEl.appendChild(actionContainerEl);
+
+        //append <li> to correct <ul> element
+        if (tasks[i].status == "to do") {
+            listItemEl.querySelector("select[name='status-change']").selectedIndex = 0;
+            tasksToDoEl.appendChild(listItemEl);
+        }
+        else if (tasks[i].status == "in progress") {
+            listItemEl.querySelector("select[name='status-change']").selectedIndex = 1;
+            tasksInProgressEl.appendChild(listItemEl);
+        }
+        else if (tasks[i].status == "completed") {
+            listItemEl.querySelector("select[name='status-change']").selectedIndex = 2;
+            tasksCompletedEl.appendChild(listItemEl);
+        }
+
+        //inc index by 1
+        taskIdCounter++;
+
+        console.log(listItemEl);
+    }
+};
+loadTasks();
 
 // Create a new task
 formEl.addEventListener("submit", taskFormHandler);
