@@ -102,18 +102,29 @@ var createTaskActions = function(taskId) {
 
 formEl.addEventListener("submit", taskFormHandler);
 
-//referencing the delete button with this function
+//referencing the delete and edit buttons with this function
 var taskButtonHandler = function(event) {
     //event.target references the DOM element on which the event occurs!!
     //the event that is occurring is the click down below
     //.matches checking if element with that class will be returned by querySelector 
-    //referencing element that has this class="delete-btn"
-    if (event.target.matches(".delete-btn")) {
-        // get the element's task id
-        var taskId = event.target.getAttribute("data-task-id");
-        deleteTask(taskId);
+
+    // get target element from event
+    var targetEl = event.target;
+
+    //referencing element that has the specified class when clicked!
+    // edit button was clicked
+    if (targetEl.matches(".edit-btn")) {
+        var taskId = targetEl.getAttribute("data-task-id");
+        editTask(taskId);
         //using the taskId for the button as an argument
+    } 
+    // delete button was clicked
+    else if (targetEl.matches(".delete-btn")) {
+        var taskId = targetEl.getAttribute("data-task-id");
+        deleteTask(taskId);
     }
+
+
 };
 
 var deleteTask = function(taskId) {
@@ -123,12 +134,46 @@ var deleteTask = function(taskId) {
     //removes the task
 };
 
+var editTask = function(taskId) {
+    console.log("editing task #" + taskId);
+  
+    // get task list item element parent!
+    var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+
+    // get content from task name and type --> classes of the h3 and span children
+    var taskName = taskSelected.querySelector("h3.task-name").textContent;
+    var taskType = taskSelected.querySelector("span.task-type").textContent;
+
+    //reference the document and make the form values equal the values of the task when the edit button is clicked
+    document.querySelector("input[name='task-name']").value = taskName;
+    document.querySelector("select[name='task-type']").value = taskType;
+    document.querySelector("#save-task").textContent = "Save Task";
+
+    //sets the taskId of the task being edited on the form itself
+    //so when user presses save, the data will be saved to the same taskId
+    formEl.setAttribute("data-task-id", taskId);
+};
+  
+
 pageContentEl.addEventListener("click", taskButtonHandler);
 
 
 
 
-
+// //OLD CODE FOR TASKBUTTONHANDLER 
+//referencing the delete and edit buttons with this function
+// var taskButtonHandler = function(event) {
+//     //event.target references the DOM element on which the event occurs!!
+//     //the event that is occurring is the click down below
+//     //.matches checking if element with that class will be returned by querySelector 
+//     //referencing element that has this class="delete-btn"
+//     if (event.target.matches(".delete-btn")) {
+//         // get the element's task id
+//         var taskId = event.target.getAttribute("data-task-id");
+//         deleteTask(taskId);
+//         //using the taskId for the button as an argument
+//     }
+// };
 
 
 
