@@ -19,15 +19,25 @@ var taskFormHandler = function(event) {
     }
 
     formEl.reset();
- 
-    //package up data as an object
-    var taskDataObj = {
-        name: taskNameInput, //name and type are properties of the object
-        type: taskTypeInput,
-    }; //values sent with argument to be read in function below
 
-    //send it as an argument to createTaskEl
-    createTaskEl(taskDataObj); //inserted object as an argument   
+    var isEdit = formEl.hasAttribute("data-task-id");
+
+    // has data attribute, so get task id and call function to complete edit process
+    if (isEdit) {
+        var taskId = formEl.getAttribute("data-task-id");
+        completeEditTask(taskNameInput, taskTypeInput, taskId);
+    } 
+    // no data attribute, so create object as normal and pass to createTaskEl function
+    else {
+        //package up data as an object
+        var taskDataObj = {
+        name: taskNameInput, //name and type are properties of the object
+        type: taskTypeInput
+        }; //values sent with argument to be read in function below
+    
+        //send it as an argument to createTaskEl
+        createTaskEl(taskDataObj); //inserted object as an argument 
+    } 
 }; 
 
 var createTaskEl = function(taskDataObj) { //accepting object as argument
@@ -153,12 +163,32 @@ var editTask = function(taskId) {
     //so when user presses save, the data will be saved to the same taskId
     formEl.setAttribute("data-task-id", taskId);
 };
-  
 
+var completeEditTask = function(taskName, taskType, taskId) {
+    // find the matching task list item
+    var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
+
+    // set new values
+    taskSelected.querySelector("h3.task-name").textContent = taskName;
+    taskSelected.querySelector("span.task-type").textContent = taskType;
+
+    alert("Task Updated!");
+
+    //resets the form by removing the task-id from the form element
+    //this ensures users are able to create new tasks again
+    formEl.removeAttribute("data-task-id");
+    document.querySelector("#save-task").textContent = "Add Task";
+};
+  
 pageContentEl.addEventListener("click", taskButtonHandler);
 
 
-
+// // OLD CODE FOR createTaskEl(taskDataObj)
+//     //package up data as an object
+//     var taskDataObj = {
+//         name: taskNameInput, //name and type are properties of the object
+//         type: taskTypeInput,
+//     }; //values sent with argument to be read in function below
 
 // //OLD CODE FOR TASKBUTTONHANDLER 
 //referencing the delete and edit buttons with this function
